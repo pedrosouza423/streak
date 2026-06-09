@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { HabitCard } from '@/components/HabitCard'
 import { MOCK_HABITS, type Habit } from '@/lib/habits'
@@ -14,6 +14,8 @@ function todayLabel() {
 }
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets()
+  const dateLabel = useMemo(() => todayLabel(), [])
   const [habits, setHabits] = useState<Habit[]>(MOCK_HABITS)
 
   function toggleHabit(id: string) {
@@ -30,7 +32,7 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View>
             <Text style={styles.title}>Hoje</Text>
-            <Text style={styles.date}>{todayLabel()}</Text>
+            <Text style={styles.date}>{dateLabel}</Text>
           </View>
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{doneCount} de {habits.length} ✓</Text>
@@ -43,12 +45,12 @@ export default function HomeScreen() {
           renderItem={({ item }) => (
             <HabitCard habit={item} onToggle={toggleHabit} />
           )}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
           showsVerticalScrollIndicator={false}
         />
       </SafeAreaView>
 
-      <TouchableOpacity style={styles.fab} activeOpacity={0.8}>
+      <TouchableOpacity style={[styles.fab, { bottom: insets.bottom + 16 }]} activeOpacity={0.8}>
         <Text style={styles.fabIcon}>+</Text>
       </TouchableOpacity>
     </View>
@@ -91,12 +93,8 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#6b7280',
   },
-  list: {
-    paddingBottom: 100,
-  },
   fab: {
     position: 'absolute',
-    bottom: 32,
     right: 20,
     width: 52,
     height: 52,
