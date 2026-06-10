@@ -1,11 +1,15 @@
 import { StyleSheet, Text, View } from 'react-native'
 
+import { fonts, palette, radius, typeScale } from '@/constants/theme'
+
 export function EmptyState() {
   return (
     <View style={styles.container}>
-      <Text style={styles.emoji}>🌱</Text>
+      <View style={styles.iconWrap}>
+        <Text style={styles.emoji}>🌱</Text>
+      </View>
       <Text style={styles.title}>Nenhum hábito ainda</Text>
-      <Text style={styles.hint}>Toque no + para criar seu primeiro hábito</Text>
+      <Text style={styles.hint}>Toque no + para criar seu{'\n'}primeiro hábito</Text>
     </View>
   )
 }
@@ -15,21 +19,31 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 80,
-    gap: 8,
+    paddingBottom: 100,
+    gap: 10,
   },
-  emoji: {
-    fontSize: 48,
+  iconWrap: {
+    width: 80,
+    height: 80,
+    borderRadius: radius.full,
+    backgroundColor: palette.surfaceRaised,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 8,
   },
+  emoji: {
+    fontSize: 40,
+  },
   title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#ffffff',
+    fontSize: typeScale.heading,
+    fontFamily: fonts.black,
+    color: palette.text,
   },
   hint: {
-    fontSize: 13,
-    color: '#6b7280',
+    fontSize: typeScale.body,
+    fontFamily: fonts.bold,
+    color: palette.textMuted,
     textAlign: 'center',
+    lineHeight: 22,
   },
 })
