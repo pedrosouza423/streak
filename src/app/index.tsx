@@ -1,9 +1,13 @@
-import { useMemo, useState } from 'react'
+import { useFocusEffect } from 'expo-router'
+import { router } from 'expo-router'
+import { useCallback, useMemo, useState } from 'react'
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { EmptyState } from '@/components/EmptyState'
 import { HabitCard } from '@/components/HabitCard'
-import { MOCK_HABITS, type Habit } from '@/lib/habits'
+import { isCompletedOn, todayKey, toggleCompletion, type Habit } from '@/lib/habits'
+import { loadHabits, saveHabits } from '@/lib/storage'
 
 function todayLabel() {
   return new Date().toLocaleDateString('pt-BR', {
@@ -16,15 +20,25 @@ function todayLabel() {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets()
   const dateLabel = useMemo(() => todayLabel(), [])
-  const [habits, setHabits] = useState<Habit[]>(MOCK_HABITS)
+  const [habits, setHabits] = useState<Habit[]>([])
 
-  function toggleHabit(id: string) {
-    setHabits(prev =>
-      prev.map(h => h.id === id ? { ...h, completedToday: !h.completedToday } : h)
+  useFocusEffect(
+    useCallback(() => {
+      loadHabits().then(setHabits)
+    }, [])
+  )
+
+  async function handleToggle(id: string) {
+    const today = todayKey()
+    const updated = habits.map(h =>
+      h.id === id ? toggleCompletion(h, today) : h
     )
+    setHabits(updated)
+    await saveHabits(updated)
   }
 
-  const doneCount = habits.filter(h => h.completedToday).length
+  const today = todayKey()
+  const doneCount = habits.filter(h => isCompletedOn(h, today)).length
 
   return (
     <View style={styles.container}>
@@ -39,18 +53,30 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <FlatList
-          data={habits}
-          keyExtractor={h => h.id}
-          renderItem={({ item }) => (
-            <HabitCard habit={item} onToggle={toggleHabit} />
-          )}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
-          showsVerticalScrollIndicator={false}
-        />
+        {habits.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <FlatList
+            data={habits}
+            keyExtractor={h => h.id}
+            renderItem={({ item }) => (
+              <HabitCard
+                habit={item}
+                onToggle={handleToggle}
+                onPress={id => router.push(`/habit/${id}`)}
+              />
+            )}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </SafeAreaView>
 
-      <TouchableOpacity style={[styles.fab, { bottom: insets.bottom + 16 }]} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={[styles.fab, { bottom: insets.bottom + 16 }]}
+        activeOpacity={0.8}
+        onPress={() => router.push('/new')}
+      >
         <Text style={styles.fabIcon}>+</Text>
       </TouchableOpacity>
     </View>
