@@ -11,7 +11,7 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { type Habit } from '@/lib/habits'
+import { generateId, type Habit } from '@/lib/habits'
 import { loadHabits, saveHabits } from '@/lib/storage'
 
 const EMOJIS = ['🧘', '📚', '🏃', '💧', '🥗', '🎯', '✍️', '🎸', '🌿', '💤', '🏋️', '🧹']
@@ -39,7 +39,7 @@ export default function NewHabitScreen() {
     setSaving(true)
     try {
       const newHabit: Habit = {
-        id: crypto.randomUUID(),
+        id: generateId(),
         name: name.trim(),
         emoji,
         color,
@@ -49,7 +49,8 @@ export default function NewHabitScreen() {
       const current = await loadHabits()
       await saveHabits([...current, newHabit])
       router.back()
-    } catch {
+    } catch (e) {
+      console.error('[new.tsx] handleSave error:', e)
       Alert.alert('Erro', 'Não foi possível salvar o hábito.')
       setSaving(false)
     }

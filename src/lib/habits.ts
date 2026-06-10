@@ -1,3 +1,11 @@
+// crypto.randomUUID() is not available in all Hermes/Expo Go environments
+export function generateId(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
+  })
+}
+
 export type Habit = {
   id: string
   name: string
