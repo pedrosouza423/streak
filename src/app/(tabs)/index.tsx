@@ -1,23 +1,37 @@
+import { LinearGradient } from 'expo-linear-gradient'
 import { router, useFocusEffect } from 'expo-router'
 import { useCallback, useMemo, useState } from 'react'
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { EmptyState } from '@/components/EmptyState'
 import { HabitCard } from '@/components/HabitCard'
-import { isCompletedOn, todayKey, toggleCompletion, type Habit } from '@/lib/habits'
+import { HeroCard } from '@/components/HeroCard'
+import { PressableScale } from '@/components/PressableScale'
+import { fonts, gradients, glow, palette, radius, spacing, typeScale } from '@/constants/theme'
+import { currentStreak, isCompletedOn, todayKey, toggleCompletion, type Habit } from '@/lib/habits'
 import { loadHabits, saveHabits } from '@/lib/storage'
+
+const MOCK_NAME = 'Pedro'
+
+function getGreeting() {
+  const h = new Date().getHours()
+  if (h < 12) return `Bom dia, ${MOCK_NAME}!`
+  if (h < 18) return `Boa tarde, ${MOCK_NAME}!`
+  return `Boa noite, ${MOCK_NAME}!`
+}
 
 function todayLabel() {
   return new Date().toLocaleDateString('pt-BR', {
     weekday: 'long',
     day: 'numeric',
-    month: 'short',
+    month: 'long',
   })
 }
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets()
+  const greeting = useMemo(() => getGreeting(), [])
   const dateLabel = useMemo(() => todayLabel(), [])
   const [habits, setHabits] = useState<Habit[]>([])
 
@@ -38,17 +52,16 @@ export default function HomeScreen() {
 
   const today = todayKey()
   const doneCount = habits.filter(h => isCompletedOn(h, today)).length
+  const topStreak = habits.reduce((max, h) => Math.max(max, currentStreak(h, today)), 0)
+  const TAB_BAR_H = insets.bottom + 88
 
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
-          <View>
-            <Text style={styles.title}>Hoje</Text>
+          <View style={styles.headerText}>
+            <Text style={styles.greeting}>{greeting}</Text>
             <Text style={styles.date}>{dateLabel}</Text>
-          </View>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{doneCount} de {habits.length} ✓</Text>
           </View>
         </View>
 
@@ -58,6 +71,11 @@ export default function HomeScreen() {
           <FlatList
             data={habits}
             keyExtractor={h => h.id}
+            ListHeaderComponent={
+              <View style={styles.heroWrap}>
+                <HeroCard topStreak={topStreak} done={doneCount} total={habits.length} />
+              </View>
+            }
             renderItem={({ item }) => (
               <HabitCard
                 habit={item}
@@ -65,19 +83,25 @@ export default function HomeScreen() {
                 onPress={id => router.push(`/habit/${id}` as never)}
               />
             )}
-            contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
+            contentContainerStyle={{ paddingBottom: TAB_BAR_H }}
             showsVerticalScrollIndicator={false}
           />
         )}
       </SafeAreaView>
 
-      <TouchableOpacity
-        style={[styles.fab, { bottom: insets.bottom + 16 }]}
-        activeOpacity={0.8}
+      <PressableScale
         onPress={() => router.push('/new')}
+        style={[styles.fabWrap, { bottom: TAB_BAR_H - 52 }]}
       >
-        <Text style={styles.fabIcon}>+</Text>
-      </TouchableOpacity>
+        <LinearGradient
+          colors={gradients.fire}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[styles.fab, glow('#ff6b1a')]}
+        >
+          <Text style={styles.fabIcon}>+</Text>
+        </LinearGradient>
+      </PressableScale>
     </View>
   )
 }
@@ -85,57 +109,52 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f0f14',
+    backgroundColor: palette.bg,
   },
   safeArea: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.xl,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20,
-    paddingTop: 8,
+    marginBottom: spacing.lg,
+    paddingTop: spacing.sm,
   },
-  title: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#ffffff',
-    marginBottom: 4,
+  headerText: {
+    flex: 1,
+  },
+  greeting: {
+    fontSize: typeScale.display,
+    fontFamily: fonts.black,
+    color: palette.text,
+    marginBottom: 3,
   },
   date: {
-    fontSize: 12,
-    color: '#4b5563',
+    fontSize: typeScale.caption,
+    fontFamily: fonts.bold,
+    color: palette.textMuted,
+    textTransform: 'capitalize',
   },
-  badge: {
-    backgroundColor: '#1a1a24',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
+  heroWrap: {
+    marginBottom: spacing.lg,
   },
-  badgeText: {
-    fontSize: 11,
-    color: '#6b7280',
+  fabWrap: {
+    position: 'absolute',
+    right: spacing.xl,
   },
   fab: {
-    position: 'absolute',
-    right: 20,
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: '#f97316',
+    width: 60,
+    height: 60,
+    borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#f97316',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 8,
   },
   fabIcon: {
-    color: '#ffffff',
-    fontSize: 28,
-    lineHeight: 30,
+    color: '#fff',
+    fontSize: 32,
+    fontFamily: fonts.black,
+    lineHeight: 34,
   },
 })
