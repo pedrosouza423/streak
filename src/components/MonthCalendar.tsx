@@ -1,5 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
+import { fonts, palette, radius, typeScale } from '@/constants/theme'
 import { isCompletedOn, toDateKey, type Habit } from '@/lib/habits'
 
 type Props = {
@@ -20,7 +21,6 @@ const MONTH_NAMES = [
 export function MonthCalendar({ habit, year, month, color, onPrev, onNext }: Props) {
   const today = toDateKey(new Date())
 
-  // 0-based weekday of the 1st of the month (0=Sun)
   const firstWeekday = new Date(year, month - 1, 1).getDay()
   const daysInMonth = new Date(year, month, 0).getDate()
 
@@ -28,8 +28,6 @@ export function MonthCalendar({ habit, year, month, color, onPrev, onNext }: Pro
     ...Array(firstWeekday).fill(null),
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ]
-
-  // pad to complete last row
   while (cells.length % 7 !== 0) cells.push(null)
 
   function dateKey(day: number) {
@@ -39,13 +37,21 @@ export function MonthCalendar({ habit, year, month, color, onPrev, onNext }: Pro
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onPrev} style={styles.arrow}>
+        <TouchableOpacity
+          onPress={onPrev}
+          style={styles.arrow}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        >
           <Text style={styles.arrowText}>{'‹'}</Text>
         </TouchableOpacity>
         <Text style={styles.monthTitle}>
-          {MONTH_NAMES[month - 1].toUpperCase()} · {year}
+          {MONTH_NAMES[month - 1]} · {year}
         </Text>
-        <TouchableOpacity onPress={onNext} style={styles.arrow}>
+        <TouchableOpacity
+          onPress={onNext}
+          style={styles.arrow}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        >
           <Text style={styles.arrowText}>{'›'}</Text>
         </TouchableOpacity>
       </View>
@@ -64,9 +70,19 @@ export function MonthCalendar({ habit, year, month, color, onPrev, onNext }: Pro
           const isToday = key === today
           return (
             <View key={i} style={styles.cell}>
-              <View style={[styles.dayBg, isToday && styles.todayBg]}>
-                {done && <Text style={styles.flame}>🔥</Text>}
-                <Text style={[styles.dayNum, done && styles.dayNumDone, isToday && styles.todayNum]}>
+              <View
+                style={[
+                  styles.dayBg,
+                  done && { backgroundColor: color },
+                  isToday && !done && styles.todayBg,
+                ]}
+              >
+                {done && isToday && <Text style={styles.flame}>🔥</Text>}
+                <Text style={[
+                  styles.dayNum,
+                  done && styles.dayNumDone,
+                  isToday && !done && styles.todayNum,
+                ]}>
                   {day}
                 </Text>
               </View>
@@ -80,40 +96,42 @@ export function MonthCalendar({ habit, year, month, color, onPrev, onNext }: Pro
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#1a1a24',
-    borderRadius: 16,
+    backgroundColor: palette.surface,
+    borderRadius: radius.lg,
     padding: 16,
+    borderWidth: 1,
+    borderColor: palette.border,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   monthTitle: {
-    color: '#ffffff',
-    fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    color: palette.text,
+    fontSize: typeScale.body,
+    fontFamily: fonts.extraBold,
   },
   arrow: {
     padding: 4,
   },
   arrowText: {
-    color: '#6b7280',
-    fontSize: 22,
-    lineHeight: 24,
+    color: palette.textMuted,
+    fontSize: 26,
+    lineHeight: 28,
+    fontFamily: fonts.black,
   },
   weekRow: {
     flexDirection: 'row',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   weekDay: {
     flex: 1,
     textAlign: 'center',
-    color: '#4b5563',
-    fontSize: 11,
-    fontWeight: '700',
+    color: palette.textFaint,
+    fontSize: typeScale.caption,
+    fontFamily: fonts.black,
   },
   grid: {
     flexDirection: 'row',
@@ -130,27 +148,29 @@ const styles = StyleSheet.create({
     height: 34,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 17,
+    borderRadius: radius.full,
   },
   todayBg: {
-    backgroundColor: '#ffffff15',
+    borderWidth: 2,
+    borderColor: palette.textMuted,
   },
   flame: {
-    fontSize: 10,
+    fontSize: 8,
     position: 'absolute',
-    top: 0,
-    right: 0,
+    top: 1,
+    right: 1,
   },
   dayNum: {
-    color: '#9ca3af',
+    color: palette.textMuted,
     fontSize: 13,
-    fontWeight: '500',
+    fontFamily: fonts.bold,
   },
   dayNumDone: {
-    color: '#ffffff',
-    fontWeight: '700',
+    color: '#fff',
+    fontFamily: fonts.black,
   },
   todayNum: {
-    color: '#ffffff',
+    color: palette.text,
+    fontFamily: fonts.black,
   },
 })

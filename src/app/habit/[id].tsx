@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { MonthCalendar } from '@/components/MonthCalendar'
 import { StatCard } from '@/components/StatCard'
+import { fonts, palette, radius, spacing, typeScale } from '@/constants/theme'
 import { bestStreak, countInMonth, currentStreak, todayKey, type Habit } from '@/lib/habits'
 import { loadHabits, saveHabits } from '@/lib/storage'
 
@@ -78,8 +79,8 @@ export default function HabitDetailScreen() {
     >
       <View style={styles.statsRow}>
         <StatCard icon="🔥" value={streak} label="Streak atual" color={habit.color} />
-        <StatCard icon="🏆" value={best} label="Melhor streak" color="#f59e0b" />
-        <StatCard icon="📅" value={monthCount} label="Este mês" color="#6b7280" />
+        <StatCard icon="🏆" value={best} label="Melhor streak" color="#fbbf24" />
+        <StatCard icon="📅" value={monthCount} label="Este mês" color="#22d3ee" />
       </View>
 
       <MonthCalendar
@@ -101,28 +102,28 @@ export default function HabitDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f0f14',
+    backgroundColor: palette.bg,
   },
   content: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    gap: 16,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+    gap: spacing.lg,
   },
   statsRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: spacing.sm + 2,
   },
   deleteBtn: {
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#ef444460',
-    borderRadius: 14,
-    paddingVertical: 14,
+    marginTop: spacing.sm,
+    borderWidth: 1.5,
+    borderColor: palette.danger + '60',
+    borderRadius: radius.lg,
+    paddingVertical: 16,
     alignItems: 'center',
   },
   deleteBtnText: {
-    color: '#ef4444',
-    fontSize: 15,
-    fontWeight: '600',
+    color: palette.danger,
+    fontSize: typeScale.body,
+    fontFamily: fonts.extraBold,
   },
 })
