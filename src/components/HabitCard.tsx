@@ -29,6 +29,7 @@ export function HabitCard({ habit, onToggle, onPress }: Props) {
     if (!done && Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     }
+    // eslint-disable-next-line react-hooks/immutability
     checkScale.value = withSequence(
       withSpring(1.3, { damping: 10, stiffness: 300 }),
       withSpring(1, { damping: 12, stiffness: 200 }),

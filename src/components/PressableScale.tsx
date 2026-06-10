@@ -17,10 +17,12 @@ export function PressableScale({ children, onPressIn, onPressOut, ...props }: Pr
     <AnimatedPressable
       style={animStyle}
       onPressIn={e => {
+        // eslint-disable-next-line react-hooks/immutability
         scale.value = withSpring(0.96, { damping: 15, stiffness: 300 })
         onPressIn?.(e)
       }}
       onPressOut={e => {
+        // eslint-disable-next-line react-hooks/immutability
         scale.value = withSpring(1, { damping: 15, stiffness: 300 })
         onPressOut?.(e)
       }}
