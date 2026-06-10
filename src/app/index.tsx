@@ -1,5 +1,4 @@
-import { useFocusEffect } from 'expo-router'
-import { router } from 'expo-router'
+import { router, useFocusEffect } from 'expo-router'
 import { useCallback, useMemo, useState } from 'react'
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -63,7 +62,7 @@ export default function HomeScreen() {
               <HabitCard
                 habit={item}
                 onToggle={handleToggle}
-                onPress={id => router.push(`/habit/${id}`)}
+                onPress={id => router.push(`/habit/${id}` as never)}
               />
             )}
             contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
